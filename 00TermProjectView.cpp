@@ -95,6 +95,7 @@ void CMy00TermProjectView::OnInitialUpdate()
 	m_koreatech.SizeToContent();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
+	m_list.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	m_list.InsertColumn(0, _T("   장"), LVCFMT_LEFT, 50);
 	m_list.InsertColumn(1, _T("  sx"), LVCFMT_LEFT, 50);
 	m_list.InsertColumn(2, _T("  sy"), LVCFMT_LEFT, 50);
@@ -977,11 +978,8 @@ void CMy00TermProjectView::OnNMClickListChars(NMHDR* pNMHDR, LRESULT* pResult)
 		// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 		NM_LISTVIEW* pNMView = (NM_LISTVIEW*)pNMHDR;
 		int index = pNMView->iItem;
-		int subindex = pNMView->iSubItem;
-		m_list.GetItemText(index, subindex);
 		// 활자 정보 그림
 		CClientDC dc(this);
-;
 		CDC dcmem;
 		CBitmap bm_type;
 		WINDOWPLACEMENT placement;
@@ -999,8 +997,8 @@ void CMy00TermProjectView::OnNMClickListChars(NMHDR* pNMHDR, LRESULT* pResult)
 		CString c_char, c_type;
 		CString str;
 		m_text_char.GetWindowText(str);
-		f_path = f_path + _T("/03_type/") + str + _T("/") + type_folder + _T("/") + m_list.GetItemText(index, subindex)
-			+ _T("_") + m_list.GetItemText(index, subindex + 1) + _T("_") + m_list.GetItemText(index, subindex + 2) + _T(".png");
+		f_path = f_path + _T("/03_type/") + str + _T("/") + type_folder + _T("/") + m_list.GetItemText(index, 0)
+			+ _T("_") + m_list.GetItemText(index, 1) + _T("_") + m_list.GetItemText(index, 2) + _T(".png");
 		Image* pImg3 = ::new Image(f_path);
 		gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2);
 
