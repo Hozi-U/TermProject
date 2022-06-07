@@ -18,7 +18,12 @@
 #define new DEBUG_NEW
 #endif
 // CMy00TermProjectView
-#define setting 'x64' // 디버깅 설정에 따라 경로 설정
+#define setting 'x64' // 디버깅 설정에 따라 경로 설정\
+// 메인 이미지(장) 스케일링 21, 18
+#define main_img_x 21 
+#define main_img_y 18
+// 서브 이미지(글자정보, 선택글자) 스케일링 2
+#define sub_img 2
 IMPLEMENT_DYNCREATE(CMy00TermProjectView, CFormView)
 
 BEGIN_MESSAGE_MAP(CMy00TermProjectView, CFormView)
@@ -457,14 +462,14 @@ void CMy00TermProjectView::Draw_Img(int sheet_num)
 	Graphics gr(dcmem);
 	Find_Img_Path(sheet_num ,f_path, 0, 0);
 	Image* pImg = ::new Image(img_path);
-	gr.DrawImage(pImg, 0, 0, pImg->GetWidth() / 18, pImg->GetHeight() / 21);
+	gr.DrawImage(pImg, 0, 0, pImg->GetWidth() / main_img_y, pImg->GetHeight() / main_img_x);
 	Pen pen_green(Color(255, 0, 255, 0), 1);
 	Pen pen_red(Color(255, 255, 0, 0), 1);
 	for (int i = 1; i < data.m_Chars.GetSize(); i++)
 	{
 		if (data.m_Chars.GetAt(i).m_sheet == sheet_num) {
 			if (data.m_Chars.GetAt(i).m_line == 1 && data.m_Chars.GetAt(i).m_order == 1) {
-				gr.DrawRectangle(&pen_red, data.m_Chars.GetAt(i).m_sx / 18, data.m_Chars.GetAt(i).m_sy / 21, data.m_Chars.GetAt(i).m_width / 18, data.m_Chars.GetAt(i).m_height / 21);
+				gr.DrawRectangle(&pen_red, data.m_Chars.GetAt(i).m_sx / main_img_y, data.m_Chars.GetAt(i).m_sy / main_img_x, data.m_Chars.GetAt(i).m_width / main_img_y, data.m_Chars.GetAt(i).m_height / main_img_x);
 				m_text_char.SetWindowText(data.m_Chars.GetAt(i).m_char);
 				str_sheet.Format(_T("%d"), data.m_Chars.GetAt(i).m_sheet);
 				str_line.Format(_T("%d"), data.m_Chars.GetAt(i).m_line);
@@ -474,11 +479,11 @@ void CMy00TermProjectView::Draw_Img(int sheet_num)
 				m_text_info.SetWindowText(str_sheet + _T("장 ") + str_line + _T("행 ") + str_order + _T("번 "));
 			}
 			else {
-				gr.DrawRectangle(&pen_green, data.m_Chars.GetAt(i).m_sx / 18, data.m_Chars.GetAt(i).m_sy / 21, data.m_Chars.GetAt(i).m_width / 18, data.m_Chars.GetAt(i).m_height / 21);
+				gr.DrawRectangle(&pen_green, data.m_Chars.GetAt(i).m_sx / main_img_y, data.m_Chars.GetAt(i).m_sy / main_img_x, data.m_Chars.GetAt(i).m_width / main_img_y, data.m_Chars.GetAt(i).m_height / main_img_x);
 			}
 		}
 	}
-	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg->GetWidth() / 18, pImg->GetHeight() / 21, &dcmem, 0, 0, SRCCOPY);
+	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg->GetWidth() / main_img_y, pImg->GetHeight() / main_img_x, &dcmem, 0, 0, SRCCOPY);
 	dcmem.DeleteDC();
 	bm_main.DeleteObject();
 	// 글자 정보 그림
@@ -501,8 +506,8 @@ void CMy00TermProjectView::Draw_Img(int sheet_num)
 	}
 	Find_Img_Path(sheet_num, f_path, init_sx, init_sy);
 	Image* pImg2 = ::new Image(img_path);
-	gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() / 2, pImg2->GetHeight() / 2);
-	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg2->GetWidth() / 2, pImg2->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+	gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img);
+	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 	dcmem.DeleteDC();
 	bm_text.DeleteObject();
 	// 활자 정보 그림
@@ -513,9 +518,9 @@ void CMy00TermProjectView::Draw_Img(int sheet_num)
 	Graphics gr3(dcmem);
 
 	Image* pImg3 = ::new Image(img_path);
-	gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2);
+	gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img);
 	
-	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+	dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 	dcmem.DeleteDC();
 	bm_type.DeleteObject();
 
@@ -557,7 +562,6 @@ void CMy00TermProjectView::TypeBox(CString id, int type, int sheet_num = 0)
 	CFileFind finder;
 	CString strWildcard(f_path);
 	strWildcard += _T("/03_type/") + id + _T("/") + str_type;
-
 	BOOL bWorking = finder.FindFile(strWildcard + _T("/*"));
 	while (bWorking)
 	{
@@ -705,7 +709,7 @@ void CMy00TermProjectView::OnBnClickedButtonOpen()
 	sheet_text.Format(_T("%d"), sheet_text_num);
 	m_sheet_text.SetWindowText(sheet_text);
 	// 알고리즘 끝
-	//한글 글자 종류 계산 알고리즘
+	//한글 글자 종류 계산 알고리즘(CSV폴더 안의 정보를 사용한다.)
 	bool chk_sheet_kind[3000] = { false, };
 	int sheet_kind_num = 0;
 	for (int i = 1; i < data.m_Chars.GetSize(); i++)
@@ -825,14 +829,14 @@ void CMy00TermProjectView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 			for (int i = 1; i < data.m_Chars.GetSize(); i++)
 			{
 				if (data.m_Chars.GetAt(i).m_sheet == m_spin_sheet.GetPos()) {
-					gr.DrawRectangle(&pen_green, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / 18,
-						placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / 21,
-						data.m_Chars.GetAt(i).m_width / 18, data.m_Chars.GetAt(i).m_height / 21);
+					gr.DrawRectangle(&pen_green, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / main_img_y,
+						placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / main_img_x,
+						data.m_Chars.GetAt(i).m_width / main_img_y, data.m_Chars.GetAt(i).m_height / main_img_x);
 				}
 			}
-			gr_sel.DrawRectangle(&pen_red, placement.rcNormalPosition.left + type_info.GetAt(num).m_sx / 18,
-				placement.rcNormalPosition.top + type_info.GetAt(num).m_sy / 21,
-				type_info.GetAt(num).m_width / 18, type_info.GetAt(num).m_height / 21);
+			gr_sel.DrawRectangle(&pen_red, placement.rcNormalPosition.left + type_info.GetAt(num).m_sx / main_img_y,
+				placement.rcNormalPosition.top + type_info.GetAt(num).m_sy / main_img_x,
+				type_info.GetAt(num).m_width / main_img_y, type_info.GetAt(num).m_height / main_img_x);
 			str_sx.Format(_T("%d"), type_info.GetAt(num).m_sx);
 			str_sy.Format(_T("%d"), type_info.GetAt(num).m_sy);
 			type_folder.Format(_T("%d"), type_info.GetAt(num).m_type);
@@ -850,8 +854,8 @@ void CMy00TermProjectView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 			Find_Img_Path(m_spin_sheet.GetPos(), f_path, str_sx, str_sy);
 			//글자 정보 그림
 			Image* pImg2 = ::new Image(img_path);
-			gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() / 2, pImg2->GetHeight() / 2);
-			dc.BitBlt(placement.rcNormalPosition.left + 1, placement.rcNormalPosition.top + 1, pImg2->GetWidth() / 2, pImg2->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+			gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img);
+			dc.BitBlt(placement.rcNormalPosition.left + 1, placement.rcNormalPosition.top + 1, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 			dcmem.DeleteDC();
 			bm_text.DeleteObject();
 			// 활자 정보 그림
@@ -861,8 +865,8 @@ void CMy00TermProjectView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 			dcmem.SelectObject(bm_type);
 			Graphics gr3(dcmem);
 			Image* pImg3 = ::new Image(img_path);
-			gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2);
-			dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+			gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img);
+			dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 			dcmem.DeleteDC();
 			bm_type.DeleteObject();
 			//vtk
@@ -902,23 +906,23 @@ void CMy00TermProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 		for (int i = 1; i < data.m_Chars.GetSize(); i++)
 		{
 			if (data.m_Chars.GetAt(i).m_sheet == m_spin_sheet.GetPos()) {
-				if (point.x >= placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / 18
-					&& point.y >= placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / 21
-					&& point.x <= placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / 18 + data.m_Chars.GetAt(i).m_width / 18
-					&& point.y <= placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / 21 + data.m_Chars.GetAt(i).m_height / 21)
+				if (point.x >= placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / main_img_y
+					&& point.y >= placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / main_img_x
+					&& point.x <= placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / main_img_y + data.m_Chars.GetAt(i).m_width / main_img_y
+					&& point.y <= placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / main_img_x + data.m_Chars.GetAt(i).m_height / main_img_x)
 				{
 					for (int i = 1; i < data.m_Chars.GetSize(); i++)
 					{
 						if (data.m_Chars.GetAt(i).m_sheet == m_spin_sheet.GetPos()) {
-							gr.DrawRectangle(&pen_green, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / 18,
-								placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / 21,
-								data.m_Chars.GetAt(i).m_width / 18, data.m_Chars.GetAt(i).m_height / 21);
+							gr.DrawRectangle(&pen_green, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / main_img_y,
+								placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / main_img_x,
+								data.m_Chars.GetAt(i).m_width / main_img_y, data.m_Chars.GetAt(i).m_height / main_img_x);
 						}
 					}
 					//마우스가 범위 안에 왔을 때 코드
-					gr_sel.DrawRectangle(&pen_red, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / 18,
-						placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / 21,
-						data.m_Chars.GetAt(i).m_width / 18 , data.m_Chars.GetAt(i).m_height / 21);
+					gr_sel.DrawRectangle(&pen_red, placement.rcNormalPosition.left + data.m_Chars.GetAt(i).m_sx / main_img_y,
+						placement.rcNormalPosition.top + data.m_Chars.GetAt(i).m_sy / main_img_x,
+						data.m_Chars.GetAt(i).m_width / main_img_y, data.m_Chars.GetAt(i).m_height / main_img_x);
 					str_sx.Format(_T("%d"), data.m_Chars.GetAt(i).m_sx);
 					str_sy.Format(_T("%d"), data.m_Chars.GetAt(i).m_sy);
 					str_sheet.Format(_T("%d"), data.m_Chars.GetAt(i).m_sheet);
@@ -941,8 +945,8 @@ void CMy00TermProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 					//다시 경로 찾기
 					Find_Img_Path(m_spin_sheet.GetPos(),f_path, str_sx, str_sy);
 					Image* pImg2 = ::new Image(img_path);
-					gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() /	2, pImg2->GetHeight() / 2);
-					dc.BitBlt(placement.rcNormalPosition.left +1, placement.rcNormalPosition.top +1, pImg2->GetWidth() / 2, pImg2->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+					gr2.DrawImage(pImg2, 0, 0, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img);
+					dc.BitBlt(placement.rcNormalPosition.left +1, placement.rcNormalPosition.top +1, pImg2->GetWidth() / sub_img, pImg2->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 					dcmem.DeleteDC();
 					bm_text.DeleteObject();
 					// 활자 정보 그림
@@ -953,9 +957,9 @@ void CMy00TermProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 					Graphics gr3(dcmem);
 
 					Image* pImg3 = ::new Image(img_path);
-					gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2);
+					gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img);
 
-					dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+					dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 					dcmem.DeleteDC();
 					bm_type.DeleteObject();
 
@@ -1000,9 +1004,9 @@ void CMy00TermProjectView::OnNMClickListChars(NMHDR* pNMHDR, LRESULT* pResult)
 		f_path = f_path + _T("/03_type/") + str + _T("/") + type_folder + _T("/") + m_list.GetItemText(index, 0)
 			+ _T("_") + m_list.GetItemText(index, 1) + _T("_") + m_list.GetItemText(index, 2) + _T(".png");
 		Image* pImg3 = ::new Image(f_path);
-		gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2);
+		gr3.DrawImage(pImg3, 0, 0, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img);
 
-		dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / 2, pImg3->GetHeight() / 2, &dcmem, 0, 0, SRCCOPY);
+		dc.BitBlt(placement.rcNormalPosition.left, placement.rcNormalPosition.top, pImg3->GetWidth() / sub_img, pImg3->GetHeight() / sub_img, &dcmem, 0, 0, SRCCOPY);
 
 		dcmem.DeleteDC();
 		bm_type.DeleteObject();
